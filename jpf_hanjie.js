@@ -5,8 +5,8 @@
    Tutorial 11
    Tutorial Case
 
-   Author: 
-   Date:   
+   Author: Dylan Kelley
+   Date:   3.7.19
 
    Global Variables
    ================
@@ -57,13 +57,14 @@
 window.onload = init;
 
 var puzzleCells;
+var cellBackground;
 
 function init() {
       // Insert the title for the first puzzle.
       document.getElementById("puzzleTitle").innerHTML = "Puzzle 1";
 
       // Insert the HTML code for the first puzzle table.
-      document.getElementById("puzzle").innerHTML = drawPuzzle(puzzleHint, puzzleRating, puzzle1);
+      document.getElementById("puzzle").innerHTML = drawPuzzle(puzzle1Hint, puzzle1Rating, puzzle1);
 
       // Add event handlers for the puzzle buttons.
       var puzzleButtons = document.getElementsByClassName("puzzles");
@@ -77,8 +78,15 @@ function init() {
 // Add event listener for mouseup event.
 document.addEventListener("mouseup", endBackground);
 
+// Add an event listener to show solution button.
+document, getElementById("solve").addEventListener("click", function () {
+      // Remove the inline background color style from each cell.
+      for (var i = 0; i < puzzleCells.length; i++) {
+            puzzleCells[i].style.backgroundColor = "";
+      }
+});
 
-function swapPuzzle() {
+function swapPuzzle(e) {
       // Retrieve the ID of the clicked button.
       var puzzleID = e.target.id;
 
@@ -90,7 +98,7 @@ function swapPuzzle() {
       // display the puzzle based on the value of the puzzleID variable.
       switch (puzzleID) {
             case "puzzle1":
-                  document.getElementById("puzzle").innerHTML = drawPuzzle(puzzleHint, puzzleRating, puzzle1);
+                  document.getElementById("puzzle").innerHTML = drawPuzzle(puzzle1Hint, puzzle1Rating, puzzle1);
                   break;
             case "puzzle2":
                   document.getElementById("puzzle").innerHTML = drawPuzzle(puzzle2Hint, puzzle2Rating, puzzle2);
@@ -109,21 +117,54 @@ function setupPuzzle() {
 
       // Set the initial color of each cell to gold.
       for (var i = 0; i < puzzleCells.length; i++) {
-            puzzleCells[i].style.backgroundColor = "rgb(233, 207, 291)";
+            puzzleCells[i].style.backgroundColor = "rgb(233, 207, 29)";
 
             // Set the cell background color in response to the mousedown event.
             puzzleCells[i].onmousedown = setBackground;
+
+            // Use a pencil image as the cursor
+            puzzleCells[i].style.cursor = "url(jpf_pencil.png), pointer";
       }
+
+      // Create object collections of the filled and empty cells.
+      var filled = document.querySelectorAll("table#hanjieGrid td.filled");
+      var empty = document.querySelectorAll("table#hanjieGrid td.empty");
+
+      // Create an event listener to highlight incorrect cells.
+      document.getElementById("peek").addEventListener("click", function () {
+            // Display incorrect white cells in pink.
+            for (var i = 0; i < filled.length; i++) {
+                  if (filled[i].style.backgroundColor === "rgb(255, 255, 255)") {
+                        filled[i].style.backgroundColor = "rgb(255, 211, 211)";
+                  }
+            }
+      });
 }
 
 function setBackground(e) {
-      cellBackground = "rgb(101, 101, 101)";
+      var cursorType;
+      // cellBackground = "rgb(101, 101, 101)";
+      // Set the background based on the keyboard event
+      if (e.shiftKey) {
+            cellBackground = "rgb(233, 207, 23)";
+            cursorType = "url(jpf_eraser.png), cell";
+      } else if (e.altKey) {
+            cellBackground = "rgb(255, 255, 255)";
+            cursorType = "url(jpf_cross.png), crosshair";
+      } else {
+            cellBackground = "rgb(101, 101, 101)";
+            cursorType = "url(jpf_pencil.png), pointer";
+      }
       e.target.style.backgroundColor = cellBackground;
 
       // Create an event listener for every puzzle cell
       for (var i = 0; i < puzzleCells.length; i++) {
             puzzleCells[i].addEventListener("mouseenter", extendBackground);
+            puzzleCells[i].style.cursor = cursorType;
       }
+
+      // Prevent the defautl action of selecting a table text.
+      e.preventDefault();
 }
 
 function extendBackground(e) {
